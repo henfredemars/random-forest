@@ -12,7 +12,8 @@ Random forest implementation in Lua 5.1
    license = "MIT License (provided)"
 }
 dependencies = {
-   "lua ~> 5.1"
+   "lua ~> 5.1",
+   "penlight >= 1.4",
 }
 build = {
    type = "builtin",
