@@ -3,10 +3,10 @@
 Random forest implementation in Lua 5.1
 =======================================
 
-This is (going to become) a Lua implementation of random forests using ID3 decision trees (also implemented here in Lua) 
-targeting Lua 5.1 compatibility. This project is educational in nature---I make no claims as to its suitability for any 
-purpose. If you are considering this rock for inclusion in your project, please understand that is not suitable for 
-production.
+This is (going to become) a Lua implementation of random forests using ID3 decision trees for text classifiaction (also 
+implemented here in Lua) targeting Lua 5.1 compatibility. This project is educational in nature---I make no claims as to its 
+suitability for any purpose. If you are considering this rock for inclusion in your project, please understand that is not 
+suitable for production.
 
 Why did you decide on this project?
 -----------------------------------
