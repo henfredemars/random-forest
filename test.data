@@ -1,0 +1,17 @@
+local Set = require("pl.Set")
+local class = require("pl.class")
+
+local classes = Set{"Angry", "Happy", "Sad"}
+
+
+local samples = {
+  {"Angry", "I'm so angry!"},
+  {"Angry", "I hate you!"},
+  {"Angry", "This makes me want to rage!"},
+  {"Angry", "That lady at the cash register ripped me off!"},
+  {"Angry", "I hate that man so much!"},
+  {"Angry", "Curse you!"},
+  {"Angry", "I hate people who are so mean!"},
+
+  {"
+  
