@@ -4,11 +4,11 @@ require('path-compat')
 
 -- imports
 local class = require("pl.class")
+local Set = require("pl.Set")
 local stringx = require("pl.stringx")
 local tablex = require("pl.tablex")
 local test = require("pl.test")
 local pretty = require("pl.pretty")
-local T = test.tuple
 
 -- module
 
@@ -23,6 +23,29 @@ local function strip_symbols(text)
   return table.concat(ss)
 end
 
+local function make_subber(list, N)
+  -- Build a closure that generates all subsequences of length N
+
+  -- Check arguments
+  assert(list and N, "Missing an argument")
+
+  -- Prevent list from changing under our feet
+  list = tablex.copy(list)
+  local pos = 1
+
+  local function closure()
+    if pos > (table.getn(list) - (N-1)) then
+      return nil
+    end
+    local t = {}
+    tablex.icopy(t, list, 1, pos, N)
+    pos = pos + 1
+    return t
+  end
+
+  return closure
+end
+
 local function cleanup_text(text)
   assert(text, "No text")
   text = strip_symbols(text)
@@ -31,79 +54,91 @@ local function cleanup_text(text)
   return text
 end
 
-local function precall_words(text, word_func)
--- Clean text and split into words, then call word_func on each word
+local function precall_phrases(text, phrase_func, N)
+-- Clean text and split into phrases, then call phrase_func on each phrase
+-- Return Set of unique phrases in no particular order
 
-  -- Text and child word function must exist
+  -- Text and child phrase function must exist
   assert(text, "no text")
-  assert(word_func, "no per-word symbol function")
+  assert(phrase_func, "no per-phrase symbol function")
 
   -- Clean text
   text = cleanup_text(text)
 
   -- Bail out if string is now empty
   if string.len(text) == 0 then
-    return
+    return Set({})
   end
 
   -- Distribute words
   if string.find(text, " ") then
-    local rvals = {}
-    for _, word in ipairs(stringx.split(text)) do
-      tablex.insertvalues(rvals, {word_func(word)})
+    local words = stringx.split(text)
+    local groups = {}
+    for i=1,N do
+      local generator = make_subber(words, i)
+      local c_group = generator()
+      while c_group do
+        table.insert(groups, c_group)
+        c_group = generator()
+      end
     end
-    return unpack(rvals)
+    local rvals = {}
+    for _, group in ipairs(groups) do
+      tablex.insertvalues(rvals, {phrase_func(table.concat(group, " "))})
+    end
+    return Set(rvals)
   end
 
   -- Only one word
-  return word_func(text)
+  return Set{phrase_func(text)}
 
 end
 
 local Symbolizer = class()
 
-function Symbolizer:_init()
+function Symbolizer:_init(psize)
   self.mapper = {}
   self.idx = 1
+  self.psize = psize or 2
 end
 
 function Symbolizer:gen_sym(text)
 -- Convert text into symbol train, creating new symbols as needed and incrementing symbol frequences,
 --   returning the freshly symbolized text symbol train
 
-  local word_func = function(word) return Symbolizer.gen_sym_word(self, word) end
-  return precall_words(text, word_func)
+  local phrase_func = function(phrase) return Symbolizer.gen_sym_phrase(self, phrase) end
+  return precall_phrases(text, phrase_func, self.psize)
 end
 
-function Symbolizer:gen_sym_word(word)
--- Add a new word to the mapper, or update an existing symbol frequency, returning the symbol
+function Symbolizer:gen_sym_phrase(phrase)
+-- Add a new phrase to the mapper, or update an existing symbol frequency, returning the symbol
 
-  -- Increment existing word counter
-  local maybe_update = self.mapper[word]
+  -- Increment existing phrase counter
+  local maybe_update = self.mapper[phrase]
   if maybe_update then
     maybe_update.c = maybe_update.c + 1
     return maybe_update.id
   end
 
-  -- A word never seen before
-  self.mapper[word] = {id=self.idx, c=1}
+  -- A phrase never seen before
+  self.mapper[phrase] = {id=self.idx, c=1}
   local rv = self.idx
   self.idx = self.idx + 1
   return rv
 end
 
-function Symbolizer:sym_word(word)
--- Convert word into a symbol without changing symbol frequencies
+function Symbolizer:sym_phrase(phrase)
+-- Convert phrase into a symbol without changing symbol frequencies
 
-  local entry = self.mapper[word]
+  local entry = self.mapper[phrase]
   return entry and entry.id
 end
 
 function Symbolizer:sym(text)
 -- Convert text into symbol train using previously created symbols and without updating symbol frequencies
 
-  local word_func = function(word) return Symbolizer.sym_word(self, word) end
-  return precall_words(text, word_func)
+  local phrase_func = function(phrase) return Symbolizer.sym_phrase(self, phrase) end
+  return precall_phrases(text, phrase_func, self.psize)
 end
 
 function Symbolizer:drop(mfreq)
@@ -124,30 +159,57 @@ end
 
 -- Tests
 local function tests()
+
+  -- Symbol strippper
+  test.asserteq(strip_symbols("!!Howdey?!"), "Howdey")
+
+  -- Subsequence tests
+  local g = make_subber({1, 2, 3, 4, 5}, 1)
+  test.asserteq(g(), {1})
+  test.asserteq(g(), {2})
+  test.asserteq(g(), {3})
+  test.asserteq(g(), {4})
+  test.asserteq(g(), {5})
+  test.asserteq(g(), nil)
+  g = make_subber({1, 2, 3, 4, 5}, 2)
+  test.asserteq(g(), {1, 2})
+  test.asserteq(g(), {2, 3})
+  test.asserteq(g(), {3, 4})
+  test.asserteq(g(), {4, 5})
+  test.asserteq(g(), nil)
+  g = make_subber({1, 2, 3, 4, 5}, 3)
+  test.asserteq(g(), {1, 2, 3})
+  test.asserteq(g(), {2, 3, 4})
+  test.asserteq(g(), {3, 4, 5})
+  test.asserteq(g(), nil)
+
+  -- Symbolizer
   local s = Symbolizer()
-  test.asserteq(s:gen_sym(""), nil, "symbolizing not a word should return nil")
-  test.asserteq(s:gen_sym("  !"), nil)
-  test.asserteq(s:gen_sym("!($ >"), nil)
-  test.asserteq(s:gen_sym("a"), 1, "should symbolize")
-  test.asserteq(s:gen_sym("a"), 1, "should stay symbolized")
-  test.asserteq(s:gen_sym("  a"), 1, "should stay symbolized")
-  test.asserteq(s:gen_sym("a !"), 1, "should stay symbolized")
-  test.asserteq(s:gen_sym("b"), 2, "should symbolize")
-  test.asserteq(s:gen_sym("a"), 1, "should stay symbolized")
-  test.asserteq(T(s:gen_sym("The quick brown fox jumps over the lazy dog.")), T(3, 4, 5, 6, 7, 8, 3, 9, 10))
-  test.asserteq(s:sym("a"), 1, "should lookup 'a'")
-  test.asserteq(s:sym("the"), 3, "should lookup 'the'")
-  test.asserteq(s:sym("apron"), nil, "shouldn't exist")
-  test.asserteq(T(s:sym("apron ball the orange a")), T(3, 1), "should give only known symbols")
-  test.asserteq(T(s:sym("apron ball the orange a")), T(3, 1), "shouldn't have changed")
+  test.asserteq(s:gen_sym(""), Set())
+  test.asserteq(s:gen_sym("  !"), Set())
+  test.asserteq(s:gen_sym("!($ >"), Set())
+  test.asserteq(s:gen_sym("a"), Set{1})
+  test.asserteq(s:gen_sym("a"), Set{1})
+  test.asserteq(s:gen_sym("  a"), Set{1})
+  test.asserteq(s:gen_sym("a !"), Set{1})
+  test.asserteq(s:gen_sym("b"), Set{2})
+  test.asserteq(s:gen_sym("a"), Set{1})
+  test.asserteq(s:gen_sym("The quick fox."), Set{3, 4, 5, 6, 7})
+  test.asserteq(s:sym("a"), Set{1})
+  test.asserteq(s:sym("the"), Set{3})
+  test.asserteq(s:sym("apron"), Set())
+  test.asserteq(s:sym("apron ball the orange a"), Set{3, 1})
+  test.asserteq(s:sym("apron"), Set{})
   s:drop(5)
-  test.asserteq(s:sym("a"), 1, "should remember 'a'")
-  test.asserteq(s:sym("the"), nil, "should forget 'the'")
+  test.asserteq(s:sym("a"), Set{1})
+  test.asserteq(s:sym("the"), Set())
 end
 
-return {
-  strip_symbols,
-  cleanup_text,
-  Symbolizer,
-  tests,
-}
+local m = {}
+m.strip_symbols = strip_symbols
+m.cleanup_text = cleanup_text
+m.make_subber = make_subber
+m.Symbolizer = Symbolizer
+m.tests = tests
+
+return m
