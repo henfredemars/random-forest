@@ -12,6 +12,8 @@ local pretty = require("pl.pretty")
 
 -- module
 
+local function istable(t) return type(t) == 'table' end
+
 local function strip_symbols(text)
   local ss = {}
   for i = 1, string.len(text) do
@@ -163,18 +165,21 @@ function Symbolizer:write()
   return pretty.write(self)
 end
 
-function Symbolizer:read(text)
-  local d = assert(pretty.read(text))
-  self.idx = d.idx
-  self.psize = d.psize
-  self.mapper = d.mapper
+function Symbolizer:read(t)
+  if not istable(t) then
+    t = assert(pretty.read(t))
+  end
+  self.idx = t.idx
+  self.psize = t.psize
+  self.mapper = t.mapper
 end
 
 function Symbolizer:__tostring()
   return self:write()
 end
 
--- Tests
+-- tests
+
 local function tests()
 
   -- Symbol strippper
