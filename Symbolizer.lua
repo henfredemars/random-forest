@@ -103,15 +103,14 @@ function Symbolizer:_init(psize)
 end
 
 function Symbolizer:gen_sym(text)
--- Convert text into symbol train, creating new symbols as needed and incrementing symbol frequences,
---   returning the freshly symbolized text symbol train
+-- Learn symbols from text, returning all unique symbols found in the text
 
   local phrase_func = function(phrase) return Symbolizer.gen_sym_phrase(self, phrase) end
   return precall_phrases(text, phrase_func, self.psize)
 end
 
 function Symbolizer:gen_sym_phrase(phrase)
--- Add a new phrase to the mapper, or update an existing symbol frequency, returning the symbol
+-- Insert or update phrase
 
   -- Increment existing phrase counter
   local maybe_update = self.mapper[phrase]
@@ -128,14 +127,14 @@ function Symbolizer:gen_sym_phrase(phrase)
 end
 
 function Symbolizer:sym_phrase(phrase)
--- Convert phrase into a symbol without changing symbol frequencies
+-- Try to convert phrase into a known symbol, without updating symbol frequencies
 
   local entry = self.mapper[phrase]
   return entry and entry.id
 end
 
 function Symbolizer:sym(text)
--- Convert text into symbol train using previously created symbols and without updating symbol frequencies
+-- Search for known symbols in text
 
   local phrase_func = function(phrase) return Symbolizer.sym_phrase(self, phrase) end
   return precall_phrases(text, phrase_func, self.psize)
@@ -151,10 +150,28 @@ function Symbolizer:drop(mfreq)
     end
   end
   self.mapper = new_map
+  local mid = 1
+  for _, v in ipairs(tablex.values(self.mapper)) do
+    if v.id >= mid then
+      mid = v.id + 1
+    end
+  end
+  self.idx = mid
+end
+
+function Symbolizer:write()
+  return pretty.write(self)
+end
+
+function Symbolizer:read(text)
+  local d = assert(pretty.read(text))
+  self.idx = d.idx
+  self.psize = d.psize
+  self.mapper = d.mapper
 end
 
 function Symbolizer:__tostring()
-  return pretty.write(self.mapper)
+  return self:write()
 end
 
 -- Tests
@@ -203,6 +220,7 @@ local function tests()
   s:drop(5)
   test.asserteq(s:sym("a"), Set{1})
   test.asserteq(s:sym("the"), Set())
+  print(s)
 end
 
 local m = {}
