@@ -11,9 +11,9 @@ local test = require("pl.test")
 local pretty = require("pl.pretty")
 local C = require("pl.comprehension").new()
 
--- module
+local Util = require("Util")
 
-local function istable(t) return type(t) == 'table' end
+-- module
 
 local function strip_symbols(text)
   local ss = {}
@@ -171,7 +171,7 @@ function Symbolizer:write()
 end
 
 function Symbolizer:read(t)
-  if not istable(t) then
+  if not Util.is_table(t) then
     t = assert(pretty.read(t))
   end
   self.idx = t.idx

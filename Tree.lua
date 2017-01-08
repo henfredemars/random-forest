@@ -9,6 +9,8 @@ local test = require("pl.test")
 local pretty = require("pl.pretty")
 local C = require("pl.comprehension").new()
 
+local Util = require("Util")
+
 -- module
 
 local Tree = class()
@@ -48,7 +50,7 @@ function Tree:eval(sample)
 end
 
 function Tree:read(t)
-  if type(t) ~= 'table' then
+  if not Util.is_table(t) then
     t = assert(pretty.read(t))
   end
   self.term = t.term
@@ -87,18 +89,10 @@ local function most_popular_category(examples)
       catcounts[v[1]] = 1
     end
   end
-  local maxkey
-  local maxval
-  for k, v in pairs(catcounts) do
-    if not maxval or v > maxval then
-      maxkey = k
-      maxval = v
-    end
-  end
-  return maxkey
+  return Util.key_with_largest_value(catcounts)
 end
 
-local function build_tree(examples, symbols)
+local function build_tree(examples, symbols, random_subset_factor)
 -- ID3 algorithm for building a decision tree
 -- Examples should be a table of examples {category, Set{symbols}}
 
@@ -123,13 +117,23 @@ local function build_tree(examples, symbols)
     return Tree(nil, nil, nil, only_category)
   end
 
+  -- Randomly subsample the symbols (when making randomized trees)
+  local sub_symbols
+  if random_subset_factor then
+    assert(random_subset_factor >= 0 and random_subset_factor <= 1)
+    sub_symbols = Set(Util.random_subset(Set.values(symbols), math.ceil(random_subset_factor*Set.len(symbols))))
+  else
+    sub_symbols = symbols
+  end
+
   -- Find the best symbol to split on
-  local N = Set.len(symbols)
+  local N = Set.len(sub_symbols)
   local candidate_symbol
   local candidate_lpool
   local candidate_rpool
   local candidate_information_gain
-  for v, _ in pairs(symbols) do
+  assert(Set.len(sub_symbols) > 0)
+  for v, _ in pairs(sub_symbols) do
 
     -- Divide the examples based on this symbol
     local lpool = C "x for _,x in ipairs(_1) if not(_2 < x[2])" (examples, Set{v})
@@ -138,10 +142,10 @@ local function build_tree(examples, symbols)
     local rpooln = table.getn(rpool)
 
     -- Information gain
-    local lpool_entropy = entropy(lpool, symbols)
-    local rpool_entropy = entropy(rpool, symbols)
+    local lpool_entropy = entropy(lpool, sub_symbols)
+    local rpool_entropy = entropy(rpool, sub_symbols)
     local new_entropy = (lpooln/N)*lpool_entropy +(rpooln/N)*rpool_entropy
-    local new_information_gain = entropy(examples, symbols) - new_entropy
+    local new_information_gain = entropy(examples, sub_symbols) - new_entropy
     if not candidate_information_gain or new_information_gain > candidate_information_gain then
       candidate_symbol = v
       candidate_lpool = lpool

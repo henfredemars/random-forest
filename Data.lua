@@ -8,9 +8,9 @@ local Set = require("pl.Set")
 local test = require("pl.test")
 local pretty = require("pl.pretty")
 
--- module
+local Util = require("Util")
 
-local function istable(t) return type(t) == 'table' end
+-- module
 
 local Data = class()
 
@@ -40,7 +40,7 @@ function Data:write()
 end
 
 function Data:read(t)
-  if not istable(t) then
+  if not Util.is_table(t) then
     t = assert(pretty.read(t))
   end
   self.categories = t.categories
