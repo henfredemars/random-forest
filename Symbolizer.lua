@@ -9,6 +9,7 @@ local stringx = require("pl.stringx")
 local tablex = require("pl.tablex")
 local test = require("pl.test")
 local pretty = require("pl.pretty")
+local C = require("pl.comprehension").new()
 
 -- module
 
@@ -105,7 +106,7 @@ function Symbolizer:_init(psize)
 end
 
 function Symbolizer:all_symbols()
-  return tablex.copy(self.mapper)
+  return C("x.id for x")(tablex.values(self.mapper))
 end
 
 function Symbolizer:gen_sym(text)
