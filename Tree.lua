@@ -69,7 +69,7 @@ local function entropy(examples, all_symbols)
   assert(all_symbols and Set.len(all_symbols) > 0)
   local e = 0
   local N = Set.len(all_symbols)
-  for _, symbol in ipairs(all_symbols) do
+  for symbol, _ in pairs(all_symbols) do
     local rpool = C "x for _,x in ipairs(_1) if _2 < x[2]" (examples, Set{symbol})
     local p = table.getn(rpool)/N
     e = e + p*math.log10(p)
@@ -129,7 +129,7 @@ local function build_tree(examples, symbols)
   local candidate_lpool
   local candidate_rpool
   local candidate_information_gain
-  for _, v in ipairs(symbols) do
+  for v, _ in pairs(symbols) do
 
     -- Divide the examples based on this symbol
     local lpool = C "x for _,x in ipairs(_1) if not(_2 < x[2])" (examples, Set{v})
