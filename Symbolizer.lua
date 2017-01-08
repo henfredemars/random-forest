@@ -106,7 +106,7 @@ function Symbolizer:_init(psize)
 end
 
 function Symbolizer:all_symbols()
-  return C("x.id for x")(tablex.values(self.mapper))
+  return Set(C("x.id for x")(tablex.values(self.mapper)))
 end
 
 function Symbolizer:gen_sym(text)
