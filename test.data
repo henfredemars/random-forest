@@ -1,17 +1,170 @@
-local Set = require("pl.Set")
-local class = require("pl.class")
 
-local classes = Set{"Angry", "Happy", "Sad"}
+{
+  categories = {
+    "sedentary",
+    "active",
+  },
+  examples = {
+    {
+      "sedentary",
+      "Keep sitting in your chair"
+    }
+    {
+      "sedentary",
+      "I'm feeling so lazy today"
+    }
+    {
+      "sedentary",
+      "We should go take a nap"
+    }
+    {
+      "sedentary",
+      "She's in the other room watching TV"
+    }
+    {
+      "sedentary",
+      "He's asleep in the recliner in front of the TV"
+    }
+    {
+      "sedentary",
+      "I have been sitting here all day"
+    }
+    {
+      "sedentary",
+      "Sitting in a car during a long road trip"
+    }
+    {
+      "sedentary",
+      "I have done nothing productive all day"
+    }
+    {
+      "sedentary",
+      "I can't remember the last time I exercised"
+    }
+    {
+      "sedentary",
+      "I have gained weight"
+    }
+    {
+      "sedentary",
+      "She does look extremely fat in that dress"
+    }
+    {
+      "sedentary",
+      "He has been lazing around on the couch all day"
+    }
+    {
+      "sedentary",
+      "I'm not very strong because I don't work out"
+    }
+    {
+      "sedentary",
+      "Listening to music and watching TV are my favorite activities after work"
+    }
+    {
+      "sedentary",
+      "I feel really fat"
+    }
+    {
+      "sedentary",
+      "Sitting around doing nothing all the time"
+    }
+    {
+      "sedentary",
+      "I don't like to work out very often"
+    }
+    {
+      "sedentary",
+      "Not very strong because he hasn't worked out for a long time"
+    }
+    {
+      "sedentary",
+      "I've been gaining weight since I got off of work"
+    }
+    {
+      "sedentary",
+      "She's a very lazy person"
+    }
+    {
+      "active",
+      "I love running, biking, skiing, and working out"
+    }
+    {
+      "active",
+      "Let's get up and do something"
+    }
+    {
+      "active",
+      "I'm doing everything I can to lose weight"
+    }
+    {
+      "active",
+      "He lives a very active and athletic lifestyle"
+    }
+    {
+      "active",
+      "I start my afternoons by running for at least 20 minutes"
+    }
+    {
+      "active",
+      "My boss goes to the gym every Wednesday"
+    }
+    {
+      "active",
+      "You should get up and move around more"
+    }
+    {
+      "active",
+      "It's good for your health to stay active"
+    }
+    {
+      "active",
+      "Running and jogging are excellent forms of areobic exercise"
+    }
+    {
+      "active",
+      "An active lifestyle is often a healthy lifestyle"
+    }
+    {
+      "active",
+      "Try not to spend the day indoors"
+    }
+    {
+      "active",
+      "I think he lost weight by running cross country"
+    }
+    {
+      "active",
+      "I'm trying to keep my weight in check by being active"
+    }
+    {
+      "active",
+      "Running has kept me in better shape"
+    }
+    {
+      "active",
+      "I can't gain weight! I have to focus on maintaining my figure"
+    }
+    {
+      "active",
+      "We should get up and get going and start doing some meaningful physical work"
+    }
+    {
+      "active",
+      "Physical labor comes with its own fitness rewards"
+    }
+    {
+      "active",
+      "Get up and move around for at least 20 minutes"
+    }
+    {
+      "active",
+      "Lifting weights, running, and skiing are great ways to help stay in shape"
+    }
+    {
+      "active",
+      "I think he works out every week by going to the gym"
+    }
+  }
+}
 
-
-local samples = {
-  {"Angry", "I'm so angry!"},
-  {"Angry", "I hate you!"},
-  {"Angry", "This makes me want to rage!"},
-  {"Angry", "That lady at the cash register ripped me off!"},
-  {"Angry", "I hate that man so much!"},
-  {"Angry", "Curse you!"},
-  {"Angry", "I hate people who are so mean!"},
-
-  {"
-  
