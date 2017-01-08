@@ -104,6 +104,10 @@ function Symbolizer:_init(psize)
   self.psize = psize or 2
 end
 
+function Symbolizer:all_symbols()
+  return tablex.copy(self.mapper)
+end
+
 function Symbolizer:gen_sym(text)
 -- Learn symbols from text, returning all unique symbols found in the text
 
