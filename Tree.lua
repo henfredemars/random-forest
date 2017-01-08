@@ -131,7 +131,7 @@ local function build_tree(examples, symbols)
   local candidate_information_gain
   for _, v in ipairs(Set.values(symbols)) do
 
-    -- Devide the examples based on this symbol
+    -- Divide the examples based on this symbol
     local lpool = C "x for _,x in ipairs(_1) if not(_2 < x[2])" (examples, Set{v})
     local rpool = C "x for _,x in ipairs(_1) if _2 < x[2]" (examples, Set{v})
     local lpooln = table.getn(lpool)
