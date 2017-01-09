@@ -29,13 +29,14 @@ What's still needed?
 --------------------
 
 - Proper implementation of cross-validation
+- Better documentation and a documentation generation scheme
 
 Example?
 --------
 
 ```
 local s = Symbolizer()
-s:gen_sym("text......")
+s:gen_sym("text needed to be converted into a set of symbols...")
 s:gen_Sym("more text...")
 s:drop(2) -- Limit to symbols occuring at least twice
 local symbols = s:all_symbols()
@@ -48,3 +49,19 @@ f:train()
 f:eval("Any new text, returns the classification")
 ```
 
+Tuning parameters for the Forest:
+
+- node_factor: what proportion of features should be considered at random when choosing the best feature to split on?
+- bag_factor: what proportion of all known features should be considered when creating a random tree root?
+
+How should I use this?
+----------------------
+
+Make sure that you have Lua 5.1 (it may or may not work in other versions--not tested) and penlight installed. Files contain 
+examples. I have not yet written a script to automatically generate documentation, but additional options and configuration 
+should be evident. I use a utility script called path-compat that you will likely need to change to match your real path, or 
+simply delete the file if you are not using LuaJIT from the Ubuntu repositories. (If you are, you will need to set your PATH 
+and CPATH there to match your Lua installation's defaults for CLua).
+
+The only feature that comes to mind that isn't shown in the above example is the ability to serialize both data and 
+fully-generated trees into text or tables.
