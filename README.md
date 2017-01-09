@@ -47,7 +47,7 @@ local examples = {
     {'class1', s:sym("text...")},
     {'class2', s:sym("text...")},
 }
-local f = Forest{examples=examples, symbols=symbols}
+local f = Forest{examples=examples, symbols=symbols, size=10}
 f:train()
 f:eval("Any new text, returns the classification")
 ```
