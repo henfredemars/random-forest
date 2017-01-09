@@ -67,4 +67,4 @@ simply delete the file if you are not using LuaJIT from the Ubuntu repositories.
 and CPATH there to match your Lua installation's defaults for CLua).
 
 The only feature that comes to mind that isn't shown in the above example is the ability to serialize both data and 
-fully-generated trees into text or tables.
+fully-generated trees into text or tables, and the phrasing size in the Symbolizer is adjustable with a trivial argument.
