@@ -24,6 +24,7 @@ What works?
 - Decision trees
 - Randomized decision trees
 - Random forests
+- Tree and data serialization
 
 What's still needed?
 --------------------
