@@ -36,9 +36,11 @@ Example?
 --------
 
 ```
+Symbolizer = require("Symbolizer").Symbolizer
+Forest = require("Forest").Forest
 local s = Symbolizer()
 s:gen_sym("text needed to be converted into a set of symbols...")
-s:gen_Sym("more text...")
+s:gen_sym("more text...")
 s:drop(2) -- Limit to symbols occuring at least twice
 local symbols = s:all_symbols()
 local examples = {
